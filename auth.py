@@ -110,6 +110,8 @@ def logout():
     st.session_state.reset_email_value = ""
     st.session_state.otp_timer_start = 0
 
+    
+
     st.rerun()
 
 

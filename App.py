@@ -5,7 +5,13 @@ from nav.hiv_page import show_hiv_page
 from auth import sign_up, login, logout, send_reset_otp, verify_otp_and_update_password,can_request_otp
 from database import  get_user_role, save_feedback, get_user_name,supabase
 from streamlit_extras.stylable_container import stylable_container
+import extra_streamlit_components as stx
 
+
+
+
+
+cookie_manager = stx.CookieManager()
 
 
 
@@ -117,23 +123,26 @@ init_session()
 
 
 
-# ---------------- RESTORE USER ----------------
+# ---------------- COOKIE SESSION RESTORE ----------------
 
-if "user" not in st.session_state:
-    st.session_state["user"] = None
+if (
+    st.session_state.get("user") is None
+    and cookie_manager.get("access_token")
+):
 
-if "session" not in st.session_state:
-    st.session_state["session"] = None
+    try:
 
-if "role" not in st.session_state:
-    st.session_state["role"] = "user"
+        st.write("Attempting cookie restore...")
 
-if "full_name" not in st.session_state:
-    st.session_state["full_name"] = ""
+        access_token = cookie_manager.get("access_token")
 
-if "active_user_id" not in st.session_state:
-    st.session_state["active_user_id"] = None
+        st.session_state["cookie_token"] = access_token
 
+    except Exception as e:
+        st.error(f"Cookie restore error: {e}")
+
+st.write("COOKIE SESSION:", st.session_state.get("session"))
+st.write("COOKIE USER:", st.session_state.get("user"))
 
 # ---------------- GET USER ----------------
 user = st.session_state.get("user")
@@ -593,6 +602,20 @@ def auth_page():
                             success = login(email, password)
 
                             if success:
+
+                                session = st.session_state.get("session")
+
+                                if session:
+                                    cookie_manager.set(
+                                        "access_token",
+                                        session.access_token
+                                    )
+
+                                    cookie_manager.set(
+                                        "refresh_token",
+                                        session.refresh_token
+                                    )
+
                                 st.success("Login successful")
                                 st.balloons()
                                 st.rerun()
@@ -602,7 +625,6 @@ def auth_page():
 
                         else:
                             st.warning("Please fill all fields")
-
                     st.markdown("---")
                     st.markdown("<p style='color:#31333F; text-align:center;'>Don't have an account?</p>", unsafe_allow_html=True)
                     if st.button("Create New Account", use_container_width=True):
