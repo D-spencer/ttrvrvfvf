@@ -369,7 +369,7 @@ def show_tb_page():
         key="tb_card",
         css_styles="""
         {
-            background: background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81, #111827);
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81, #111827);
             border-radius: 24px;
             padding: 32px;
             border: 1px solid rgba(120,119,198,0.18);
